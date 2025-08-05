@@ -27,7 +27,7 @@ It Is Also Executable
 
 You can just download the .exe file from Releases.
 
-##⚠️ Disclaimer
+## ⚠️ Disclaimer
 
 This tool is provided for educational purposes only.
 I am not responsible for any misuse, damage, or legal issues caused by using this program.
