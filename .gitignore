@@ -1,0 +1,26 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+
+# Build and distribution folders (PyInstaller output)
+dist/
+build/
+*.spec
+
+# IDE/editor files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Executable files
+*.exe
+
+# Environment files (if you use them)
+.env
