@@ -17,11 +17,11 @@ A simple dark-mode GUI tool to generate, apply, and reset MAC addresses.
 
 2. Install dependencies:
 
-      pip install -r requirements.txt
+         pip install -r requirements.txt
 
 3. Run it:
 
-    python main.py
+       python main.py
 
 It Is Also Executable
 
