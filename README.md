@@ -26,3 +26,9 @@ A simple dark-mode GUI tool to generate, apply, and reset MAC addresses.
 It Is Also Executable
 
 You can just download the .exe file from Releases.
+
+⚠️ Disclaimer
+
+This tool is provided for educational purposes only.
+I am not responsible for any misuse, damage, or legal issues caused by using this program.
+Use it at your own risk and only on networks you own or have permission to modify.
