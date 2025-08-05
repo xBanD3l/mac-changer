@@ -27,13 +27,14 @@ It Is Also Executable
 
 You can just download the .exe file from Releases.
 
-⚠️ Disclaimer
+##⚠️ Disclaimer
 
 This tool is provided for educational purposes only.
 I am not responsible for any misuse, damage, or legal issues caused by using this program.
 Use it at your own risk and only on networks you own or have permission to modify.
 
-License
+## License
 
-This project is licensed under the GNU GPL v3 License.
-You are free to use, modify, and distribute it (even commercially), but you must credit the original author (xBanD3l) and share any modified versions under the same license.
+This project is licensed under the **MIT License** with an attribution clause.  
+You are free to use, modify, and distribute this software (even commercially), but you must **give proper credit to "xBanD3l"** in your project or distribution.
+
