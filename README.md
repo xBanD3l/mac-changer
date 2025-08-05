@@ -15,9 +15,9 @@ A simple dark-mode GUI tool to generate, apply, and reset MAC addresses.
    git clone https://github.com/xBanD3l/mac-changer.git
    cd mac-changer
 
-    Install dependencies:
+Install dependencies:
 
-pip install -r requirements.txt
+      pip install -r requirements.txt
 
 Run it:
 
