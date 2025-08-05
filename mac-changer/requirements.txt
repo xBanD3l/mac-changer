@@ -1,0 +1,2 @@
+pyperclip
+tkinter  # (note: built-in for Python, but include for clarity)
