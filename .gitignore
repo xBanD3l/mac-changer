@@ -24,3 +24,6 @@ Thumbs.db
 
 # Environment files (if you use them)
 .env
+
+#runtime generated files
+saved_mac.json
