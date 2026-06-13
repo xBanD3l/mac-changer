@@ -1,6 +1,6 @@
 # MAC Address Changer
 
-A simple dark-mode GUI tool to generate, apply, and reset MAC addresses.
+A simple tool to generate, apply, and reset MAC addresses.
 
 ## Features
 - Generate random MAC addresses.
