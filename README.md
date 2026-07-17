@@ -25,7 +25,7 @@ On Windows, the app may ask for administrator access when changing the MAC addre
 
 ## Build a Windows executable
 
-A GitHub Action is included at [.github/workflows/build-exe.yml](.github/workflows/build-exe.yml). It builds a Windows EXE from the current repository contents.
+A GitHub Action is included at [.github/workflows/build-exe.yml](.github/workflows/build-exe.yml). It builds a Windows EXE from the current repository contents and updates the latest GitHub release with the newest build.
 
 To run it:
 1. Open the Actions tab on GitHub.

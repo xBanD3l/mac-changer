@@ -49,6 +49,12 @@ jobs:
           echo "tag=$new_tag" >> "$GITHUB_OUTPUT"
         id: tag
 
+      - name: Ensure latest release tag exists
+        shell: bash
+        run: |
+          git tag -f latest || true
+          git push origin latest --force || true
+
       - name: Build executable
         run: |
           pyinstaller --onefile --noconsole --name mac-changer main.py
@@ -64,7 +70,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/mac-changer.exe
-          tag_name: ${{ steps.tag.outputs.tag || github.ref_name }}
-          name: Release ${{ steps.tag.outputs.tag || github.ref_name }}
+          tag_name: latest
+          name: Latest Release
           draft: false
           prerelease: false
+          make_latest: true

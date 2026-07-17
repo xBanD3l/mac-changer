@@ -4,18 +4,15 @@ import re
 import subprocess
 import sys
 import tkinter as tk
-
-# Check and install ttkbootstrap if not available
-try:
-    import ttkbootstrap as ttk
-except ImportError:
-    print("Installing ttkbootstrap...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "ttkbootstrap"])
-    import ttkbootstrap as ttk
+import tkinter.ttk as ttk
 
 import pyperclip
 
 import mac_utils
+
+
+def should_wait_for_input():
+    return bool(getattr(sys, "stdin", None)) and hasattr(sys.stdin, "read")
 
 
 def is_admin():
@@ -73,7 +70,11 @@ class MacChangerApp:
 
     def setup_theme(self):
         """Set up the app theme."""
-        self.style = ttk.Style(theme="darkly")
+        self.style = ttk.Style()
+        try:
+            self.style.theme_use("clam")
+        except tk.TclError:
+            pass
         self.configure_custom_styles()
 
     def configure_custom_styles(self):
@@ -144,8 +145,6 @@ class MacChangerApp:
         self.mac_card = ttk.LabelFrame(
             self.main_frame,
             text="Current MAC Address",
-            padding=config["card_padding"],
-            bootstyle="info",
         )
         self.mac_card.pack(pady=(0, config["section_spacing"]), padx=config["card_padding"], fill="x")
 
@@ -155,8 +154,6 @@ class MacChangerApp:
         self.interface_frame = ttk.LabelFrame(
             self.main_frame,
             text="Network Interface",
-            padding=config["card_padding"],
-            bootstyle="secondary",
         )
         self.interface_frame.pack(pady=(0, config["section_spacing"]), padx=config["card_padding"], fill="x")
 
@@ -165,7 +162,6 @@ class MacChangerApp:
             self.interface_frame,
             textvariable=self.interface_var,
             state="readonly",
-            bootstyle="rounded",
         )
         self.interface_combo.pack(fill="x")
         self.interface_combo.bind("<<ComboboxSelected>>", lambda _event: self.refresh_original_mac())
@@ -179,7 +175,6 @@ class MacChangerApp:
             text="Generate New MAC",
             command=self.generate_mac,
             style="Custom.TButton",
-            bootstyle="primary-rounded",
         )
         self.generate_btn.pack(pady=(0, config["button_spacing"]), fill="x")
 
@@ -188,7 +183,6 @@ class MacChangerApp:
             text="Check Current MAC",
             command=self.check_current_mac,
             style="Custom.TButton",
-            bootstyle="info-rounded",
         )
         self.check_btn.pack(pady=(0, config["button_spacing"]), fill="x")
 
@@ -197,7 +191,6 @@ class MacChangerApp:
             text="Copy MAC to Clipboard",
             command=self.copy_mac,
             style="Custom.TButton",
-            bootstyle="success-rounded",
         )
         self.copy_btn.pack(pady=(0, config["button_spacing"]), fill="x")
 
@@ -206,7 +199,6 @@ class MacChangerApp:
             text="Apply Current MAC",
             command=self.set_mac_address,
             style="Custom.TButton",
-            bootstyle="warning-rounded",
         )
         self.set_mac_btn.pack(pady=(0, config["button_spacing"]), fill="x")
 
@@ -215,7 +207,6 @@ class MacChangerApp:
             text="Reset to Default MAC",
             command=self.reset_to_default_mac,
             style="Custom.TButton",
-            bootstyle="danger-rounded",
         )
         self.reset_btn.pack(pady=(0, config["button_spacing"]), fill="x")
 
@@ -224,7 +215,6 @@ class MacChangerApp:
             text="Save Current MAC",
             command=self.save_current_mac,
             style="Custom.TButton",
-            bootstyle="success-rounded",
         )
         self.save_btn.pack(pady=(0, config["button_spacing"]), fill="x")
 
@@ -233,7 +223,6 @@ class MacChangerApp:
             text="Restore Saved MAC",
             command=self.restore_saved_mac,
             style="Custom.TButton",
-            bootstyle="secondary-rounded",
         )
         self.restore_btn.pack(pady=(0, config["section_spacing"]), fill="x")
 
@@ -241,8 +230,6 @@ class MacChangerApp:
         self.exit_restore_frame = ttk.LabelFrame(
             self.main_frame,
             text="Exit Behavior",
-            padding=config["card_padding"],
-            bootstyle="secondary",
         )
         self.exit_restore_frame.pack(pady=(0, config["section_spacing"]), padx=config["card_padding"], fill="x")
 
@@ -257,8 +244,6 @@ class MacChangerApp:
         self.custom_mac_frame = ttk.LabelFrame(
             self.main_frame,
             text="Custom MAC Address",
-            padding=config["card_padding"],
-            bootstyle="secondary",
         )
         self.custom_mac_frame.pack(pady=(0, config["section_spacing"]), padx=config["card_padding"], fill="x")
 
@@ -267,7 +252,6 @@ class MacChangerApp:
             style="Custom.TEntry",
             justify="center",
             font=(config["font_family"], config["font_size_medium"]),
-            bootstyle="rounded",
         )
         self.custom_mac_entry.pack(pady=(0, config["button_spacing"]), fill="x")
 
@@ -276,7 +260,6 @@ class MacChangerApp:
             text="Use Custom Address",
             command=self.add_custom_mac,
             style="Custom.TButton",
-            bootstyle="secondary-rounded",
         )
         self.custom_mac_btn.pack(fill="x")
 
@@ -435,7 +418,7 @@ if __name__ == "__main__":
                 )
                 sys.exit(0)
 
-        root = ttk.Window(themename="darkly")
+        root = tk.Tk()
         app = MacChangerApp(root)
         root.protocol("WM_DELETE_WINDOW", app.on_close)
         root.mainloop()
@@ -445,4 +428,5 @@ if __name__ == "__main__":
         import traceback
 
         traceback.print_exc()
-        input("Press Enter to exit...")
+        if should_wait_for_input():
+            input("Press Enter to exit...")
