@@ -1,40 +1,39 @@
 # MAC Address Changer
 
-A simple tool to generate, apply, and reset MAC addresses.
+This is a small desktop app for changing the MAC address on a network interface. I built it while learning Python and working with low-level networking tools. It is handy for quick experiments and local testing.
 
-## Features
-- Generate random MAC addresses.
-- Apply MAC changes (requires admin).
-- Reset to default MAC.
-- Check current MAC.
-- Copy to clipboard.
+## What it does
 
-## How to Run
-1. Clone this repo:  
+- show the current MAC address
+- generate a random MAC address
+- apply a new MAC to a selected interface
+- save and restore a MAC later
+- optionally restore the original MAC when the app closes
+
+## How to run
+
+1. Install the dependencies:
    ```bash
-   git clone https://github.com/xBanD3l/mac-changer.git
-   cd mac-changer
+   pip install -r requirements.txt
+   ```
+2. Start the app:
+   ```bash
+   python main.py
+   ```
 
-2. Install dependencies:
+On Windows, the app may ask for administrator access when changing the MAC address.
 
-         pip install -r requirements.txt
+## Limits
 
-3. Run it:
+- This needs admin or root privileges to actually change the address.
+- It depends on the system tools available on your machine.
+- This is a simple tool for learning and local testing, not a full network management app.
 
-       python main.py
+## Disclaimer
 
-It Is Also Executable
-
-You can just download the .exe file from Releases.
-
-## ⚠️ Disclaimer
-
-This tool is provided for educational purposes only.
-I am not responsible for any misuse, damage, or legal issues caused by using this program.
-Use it at your own risk and only on networks you own or have permission to modify.
+Use this only on networks you own or are allowed to test on.
 
 ## License
 
-This project is licensed under the **MIT License** with an attribution clause.  
-You are free to use, modify, and distribute this software (even commercially), but you must **give proper credit to "xBanD3l"** in your project or distribution.
+This project is licensed under the MIT License.
 

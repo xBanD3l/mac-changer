@@ -1,19 +1,16 @@
-import random
-import os
 import json
+import os
 import platform
-import subprocess
+import random
 import re
+import subprocess
 
-# File to store the saved MAC address
-SAVE_FILE = "saved_mac.json"
+# Saved MACs are kept in this file.
+SAVE_FILE = os.path.join(os.path.dirname(__file__), "saved_mac.json")
 
 
 def generate_random_mac():
-    """
-    Generates a random MAC address in the format XX:XX:XX:XX:XX:XX.
-    The first octet is set to avoid multicast and ensure it's a locally administered address.
-    """
+    """Create a random MAC address in the usual XX:XX:XX:XX:XX:XX format."""
     first_octet = random.randint(0x00, 0xFF)
     first_octet = (first_octet | 0x02) & 0xFE  # Locally administered, unicast
 
@@ -21,26 +18,23 @@ def generate_random_mac():
     return ":".join(f"{octet:02X}" for octet in mac)
 
 
-def save_mac(mac_address):
-    """
-    Saves the given MAC address to a JSON file.
-    """
+def save_mac(mac_address, save_file=SAVE_FILE):
+    """Save a MAC address to disk."""
     try:
-        with open(SAVE_FILE, "w") as file:
+        with open(save_file, "w") as file:
             json.dump({"mac": mac_address}, file)
+        return True
     except Exception as e:
         print(f"Error saving MAC: {e}")
+        return False
 
 
-def load_saved_mac():
-    """
-    Loads and returns the saved MAC address from the JSON file.
-    Returns None if no saved MAC is found or if an error occurs.
-    """
-    if not os.path.exists(SAVE_FILE):
+def load_saved_mac(save_file=SAVE_FILE):
+    """Load a saved MAC address from disk if one exists."""
+    if not os.path.exists(save_file):
         return None
     try:
-        with open(SAVE_FILE, "r") as file:
+        with open(save_file, "r") as file:
             data = json.load(file)
             return data.get("mac")
     except Exception as e:
@@ -48,30 +42,92 @@ def load_saved_mac():
         return None
 
 
-import subprocess
+def get_available_interfaces():
+    """Return available network interface names for the current OS."""
+    system = platform.system()
+
+    try:
+        if system == "Windows":
+            result = subprocess.run(
+                ["wmic", "nic", "where", "NetEnabled=True", "get", "NetConnectionID"],
+                capture_output=True,
+                text=True,
+            )
+            interfaces = [
+                line.strip()
+                for line in result.stdout.splitlines()
+                if line.strip() and not line.lower().startswith("netconnectionid")
+            ]
+            return [iface for iface in interfaces if iface]
+
+        for command in (["ip", "-o", "link", "show"], ["ip", "link", "show"], ["ifconfig"]):
+            try:
+                result = subprocess.run(command, capture_output=True, text=True)
+            except FileNotFoundError:
+                continue
+
+            if result.returncode != 0:
+                continue
+
+            if command[0] == "ifconfig":
+                interfaces = []
+                for line in result.stdout.splitlines():
+                    if line.startswith(" ") or not line.strip():
+                        continue
+                    parts = line.split()
+                    if parts and parts[0].endswith(":"):
+                        name = parts[0][:-1]
+                        if name != "lo":
+                            interfaces.append(name)
+                return interfaces
+
+            interfaces = []
+            for line in result.stdout.splitlines():
+                match = re.match(r"^\d+:\s+([^:]+):", line)
+                if match:
+                    name = match.group(1)
+                    if name != "lo":
+                        interfaces.append(name)
+            return interfaces
+
+    except Exception as e:
+        print(f"Error fetching interfaces: {e}")
+
+    return []
+
+
+def resolve_interface_name(interface_name=None, fallback=None):
+    """Pick the best interface name from the available options."""
+    available = get_available_interfaces()
+
+    if interface_name and interface_name in available:
+        return interface_name
+
+    if fallback and fallback in available:
+        return fallback
+
+    if available:
+        return available[0]
+
+    return interface_name or fallback or "Wi-Fi"
+
 
 def get_adapter_description(interface_name):
     try:
         result = subprocess.run(
             ["wmic", "nic", "where", f"NetConnectionID='{interface_name}'", "get", "Name"],
             capture_output=True,
-            text=True
+            text=True,
         )
         output = result.stdout.strip()
-        print(f"WMIC output for '{interface_name}':\n{output}")  # Debug print
 
         lines = [line.strip() for line in output.splitlines() if line.strip()]
-        # The first line is the header, second line is the description
         if len(lines) >= 2:
-            description = lines[1]
-            return description
-        else:
-            print("WMIC output does not have expected lines.")
-            return None
+            return lines[1]
+        return None
     except Exception as e:
         print(f"Error getting adapter description: {e}")
         return None
-
 
 
 def find_registry_key_by_description(description):
@@ -110,10 +166,7 @@ def find_registry_key_by_description(description):
 
 
 def apply_mac(interface, new_mac):
-    """
-    Changes the MAC address of the given network interface.
-    Requires administrative/root privileges.
-    """
+    """Change the MAC address on the selected interface."""
     system = platform.system()
 
     try:
@@ -121,24 +174,27 @@ def apply_mac(interface, new_mac):
             description = get_adapter_description(interface)
             if not description:
                 print(f"Could not find adapter description for interface '{interface}'")
-                return
+                return False
 
             reg_key_path = find_registry_key_by_description(description)
             if not reg_key_path:
                 print(f"Could not find registry key for adapter '{description}'")
-                return
+                return False
 
-            # Disable interface
             subprocess.run(["netsh", "interface", "set", "interface", interface, "admin=disable"], check=True)
-
-            # Set the new MAC address in registry
-            subprocess.run([
-                "reg", "add",
-                f"HKEY_LOCAL_MACHINE\\{reg_key_path}",
-                "/v", "NetworkAddress", "/d", new_mac.replace(":", ""), "/f"
-            ], check=True)
-
-            # Enable interface
+            subprocess.run(
+                [
+                    "reg",
+                    "add",
+                    f"HKEY_LOCAL_MACHINE\\{reg_key_path}",
+                    "/v",
+                    "NetworkAddress",
+                    "/d",
+                    new_mac.replace(":", ""),
+                    "/f",
+                ],
+                check=True,
+            )
             subprocess.run(["netsh", "interface", "set", "interface", interface, "admin=enable"], check=True)
 
         elif system in ["Linux", "Darwin"]:  # macOS is Darwin
@@ -147,23 +203,21 @@ def apply_mac(interface, new_mac):
             subprocess.run(["sudo", "ifconfig", interface, "up"], check=True)
 
         print(f"MAC address changed to {new_mac} on {interface}")
+        return True
 
     except subprocess.CalledProcessError as e:
         print(f"Error changing MAC: {e}")
+        return False
 
 
 def get_current_mac(interface):
-    """
-    Returns the current MAC address of the specified network interface.
-    """
+    """Return the current MAC address for the given interface."""
     system = platform.system()
 
     try:
         if system == "Windows":
-            # Use 'getmac' and parse output for the specific interface if possible
             result = subprocess.run(["getmac", "/v", "/fo", "list"], capture_output=True, text=True)
             output = result.stdout
-            # Extract MACs and their interface names
             interfaces = output.split("\n\n")
             for iface in interfaces:
                 if interface.lower() in iface.lower():
@@ -180,3 +234,10 @@ def get_current_mac(interface):
     except Exception as e:
         print(f"Error fetching current MAC: {e}")
         return None
+
+
+def restore_original_mac_if_enabled(interface, original_mac, enable_restore):
+    """Restore the original MAC address if that option is enabled."""
+    if not enable_restore or not original_mac:
+        return True
+    return apply_mac(interface, original_mac)
