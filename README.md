@@ -23,6 +23,17 @@ This is a small desktop app for changing the MAC address on a network interface.
 
 On Windows, the app may ask for administrator access when changing the MAC address.
 
+## Build a Windows executable
+
+A GitHub Action is included at [.github/workflows/build-exe.yml](.github/workflows/build-exe.yml). It builds a Windows EXE from the current repository contents.
+
+To run it:
+1. Open the Actions tab on GitHub.
+2. Select "Build Windows EXE".
+3. Click "Run workflow".
+
+The built file will be available as a workflow artifact.
+
 ## Limits
 
 - This needs admin or root privileges to actually change the address.
