@@ -40,11 +40,19 @@ The built file will be available as a workflow artifact.
 - It depends on the system tools available on your machine.
 - This is a simple tool for learning and local testing, not a full network management app.
 
-## Disclaimer
+## ⚠️ Disclaimer
 
-Use this only on networks you own or are allowed to test on.
+This tool is provided for educational purposes only.
+I am not responsible for any misuse, damage, or legal issues caused by using this program.
+Use it at your own risk and only on networks you own or have permission to modify.
+
+**Important Notes:**
+- Changing MAC addresses may violate terms of service
+- Some networks track devices by MAC address
+- Always ensure you have permission before changing MAC addresses
+- MAC address changes may affect network connectivity
 
 ## License
 
-This project is licensed under the MIT License.
-
+This project is licensed under the **MIT License** with an attribution clause.  
+You are free to use, modify, and distribute this software (even commercially), but you must **give proper credit to "xBanD3l"** in your project or distribution.
