@@ -51,7 +51,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch --tags --force
-          new_tag=$(bash scripts/next_version_tag.sh)
+          new_tag=$(python scripts/next_version_tag.py)
           if [ -z "$new_tag" ]; then
             echo "Failed to compute the next version tag" >&2
             exit 1
