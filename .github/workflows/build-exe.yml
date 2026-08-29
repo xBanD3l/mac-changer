@@ -34,41 +34,6 @@ jobs:
       - name: Run tests
         run: python -m unittest discover -s tests -v
 
-      - name: Create next tag if needed
-        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
-        shell: bash
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git fetch --tags --force
-          latest_tag=$(git tag --list 'v*' | grep -E '^v[0-9]+(\.[0-9]+)*$' | sort -V | tail -n 1)
-          if [ -z "$latest_tag" ]; then
-            major=1
-            minor=0
-            patch=0
-            new_tag="v1.0.0"
-          else
-            version=${latest_tag#v}
-            IFS='.' read -r major minor patch <<< "${version}.0.0"
-            patch=$((patch + 1))
-            new_tag="v${major}.${minor}.${patch}"
-          fi
-          while git rev-parse -q --verify "refs/tags/${new_tag}" >/dev/null; do
-            patch=$((patch + 1))
-            new_tag="v${major}.${minor}.${patch}"
-          done
-          git tag "$new_tag"
-          git push origin "$new_tag"
-          echo "tag=$new_tag" >> "$GITHUB_OUTPUT"
-        id: tag
-
-      - name: Ensure latest release tag exists
-        if: (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || startsWith(github.ref, 'refs/tags/')
-        shell: bash
-        run: |
-          git tag -f latest
-          git push origin latest --force
-
       - name: Build executable
         run: |
           pyinstaller --onefile --noconsole --name mac-changer --hidden-import mac_utils main.py
@@ -78,6 +43,31 @@ jobs:
         with:
           name: mac-changer-windows
           path: dist/mac-changer.exe
+
+      - name: Create next tag if needed
+        if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch --tags --force
+          new_tag=$(bash scripts/next_version_tag.sh)
+          if [ -z "$new_tag" ]; then
+            echo "Failed to compute the next version tag" >&2
+            exit 1
+          fi
+          git tag "$new_tag"
+          git push origin "$new_tag"
+          echo "Created tag $new_tag"
+          echo "tag=$new_tag" >> "$GITHUB_OUTPUT"
+        id: tag
+
+      - name: Ensure latest release tag exists
+        if: (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: |
+          git tag -f latest
+          git push origin latest --force
 
       - name: Create release
         if: (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || startsWith(github.ref, 'refs/tags/')

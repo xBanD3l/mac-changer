@@ -41,7 +41,7 @@ To run a release build:
 2. Select "Build Windows EXE".
 3. Click "Run workflow" on the `main` branch.
 
-Pull requests also run the tests and publish the EXE as a workflow artifact without creating a release.
+The EXE is built and uploaded as an artifact even if tagging fails. On a successful `main` run, the workflow also creates the next `v*` tag and updates the Latest Release.
 
 ## Limits
 
