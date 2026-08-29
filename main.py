@@ -185,10 +185,20 @@ class MacChangerApp:
         self.root.geometry(f"{window_width}x{window_height}+{x}+{y}")
         self.root.minsize(config["min_width"], min(config["min_height"], screen_height - 40))
         self.root.resizable(True, True)
+        self.root.bind("<Configure>", self._on_root_configure)
 
     def create_ui(self):
         """Build the main window UI."""
         config = THEME_CONFIG
+
+        self.status_label = ttk.Label(
+            self.root,
+            text="",
+            style="Status.TLabel",
+            wraplength=config["window_width"] - 80,
+            justify="center",
+        )
+        self.status_label.pack(side="bottom", fill="x", pady=(4, 28))
 
         self.scrollable = ScrollableFrame(self.root)
         self.scrollable.pack(fill="both", expand=True)
@@ -317,15 +327,6 @@ class MacChangerApp:
         )
         self.custom_mac_btn.pack(fill="x", pady=(0, 8))
 
-        self.status_label = ttk.Label(
-            self.main_frame,
-            text="",
-            style="Status.TLabel",
-            wraplength=400,
-            justify="center",
-        )
-        self.status_label.pack(pady=(0, config["section_spacing"]))
-
         self.author_label = ttk.Label(self.root, text="by xBanD3l", style="Tiny.TLabel")
         self.author_label.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
 
@@ -347,6 +348,10 @@ class MacChangerApp:
             self.current_interface = selected
             return selected
         return self.current_interface
+
+    def _on_root_configure(self, event):
+        if event.widget is self.root and hasattr(self, "status_label"):
+            self.status_label.configure(wraplength=max(200, event.width - 80))
 
     def remember_original_mac(self, interface=None):
         interface = interface or self.get_selected_interface()
