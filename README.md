@@ -12,27 +12,36 @@ This is a small desktop app for changing the MAC address on a network interface.
 
 ## How to run
 
-1. Install the dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. Start the app:
-   ```bash
-   python main.py
-   ```
+Python 3.10+ with tkinter is enough. On Debian/Ubuntu, install tkinter first:
+
+```bash
+sudo apt install python3-tk
+```
+
+Start the app:
+
+```bash
+python main.py
+```
 
 On Windows, the app may ask for administrator access when changing the MAC address.
 
+Run the tests:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
 ## Build a Windows executable
 
-A GitHub Action is included at [.github/workflows/build-exe.yml](.github/workflows/build-exe.yml). It builds a Windows EXE from the current repository contents and updates the latest GitHub release with the newest build.
+A GitHub Action is included at [.github/workflows/build-exe.yml](.github/workflows/build-exe.yml). It runs the tests, builds a Windows EXE, and (from `main` or a version tag) updates the latest GitHub release.
 
-To run it:
+To run a release build:
 1. Open the Actions tab on GitHub.
 2. Select "Build Windows EXE".
-3. Click "Run workflow".
+3. Click "Run workflow" on the `main` branch.
 
-The built file will be available as a workflow artifact.
+Pull requests also run the tests and publish the EXE as a workflow artifact without creating a release.
 
 ## Limits
 

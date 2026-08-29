@@ -1,1 +1,2 @@
-pyperclip
+# Tkinter is part of the Python standard library.
+# No third-party packages are required to run the app.
